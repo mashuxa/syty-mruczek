@@ -78,4 +78,4 @@ begin
 end;
 $$;
 revoke all on function restaurant.submit_lead(uuid,text,text,integer,text,text,text,text,text,text,text) from public, anon, authenticated;
-comment on schema restaurant is 'Syty Mruczek lead capture. Private schema; server access only.';
+comment on schema restaurant is 'Syty Kotek lead capture. Private schema; server access only.';

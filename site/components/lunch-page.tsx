@@ -1,8 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { Locale, MealType } from '@/lib/lead-schema';
+import { localePaths, seoContent } from '@/lib/site-content';
+import VisitTracker from '@/components/visit-tracker';
+import FoodGallery from '@/components/food-gallery';
 
 const copy = {
   pl: {
@@ -52,13 +55,21 @@ const copy = {
 };
 const meals: MealType[] = ['hot', 'hot_soup', 'hot_soup_snack'];
 
-export default function Home() {
-  const [locale, setLocale] = useState<Locale>('pl');
+export default function LunchPage({ locale }: { locale: Locale }) {
   const [meal, setMeal] = useState<MealType>('hot_soup');
   const [state, setState] = useState<'idle' | 'sending' | 'success'>('idle');
   const [error, setError] = useState('');
+  const [formVisible,setFormVisible]=useState(false);
   const attempt = useRef<{ key: string; payload: string } | null>(null);
   const t = copy[locale];
+  const seo = seoContent[locale];
+  useEffect(() => {
+    try {
+      const saved=localStorage.getItem('syty-kotek-language');
+      if (location.pathname==='/' && saved && saved!=='pl' && saved in localePaths) location.replace(localePaths[saved as Locale]);
+    } catch { /* The selected URL still works if browser storage is disabled. */ }
+  }, []);
+  useEffect(()=>{const form=document.getElementById('zapytanie');if(!form)return;const observer=new IntersectionObserver(([entry])=>setFormVisible(entry.isIntersecting),{threshold:0.1});observer.observe(form);return()=>observer.disconnect();},[]);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (state === 'sending') return;
@@ -74,19 +85,22 @@ export default function Home() {
       setState('success');
     } catch (e) { setState('idle'); setError(e instanceof Error && e.message === 'limit' ? t.limit : t.error); }
   }
-  function changeLanguage(next: Locale) { setLocale(next); document.documentElement.lang = next; }
+  function saveLanguage(next: Locale) { try { localStorage.setItem('syty-kotek-language',next); } catch {} }
   return <main lang={locale}>
+    <VisitTracker locale={locale}/>
     <header className="header wrap">
-      <a href="#" className="wordmark" aria-label="Syty Mruczek — start">syty mruczek<span>DOMOWE OBIADY</span></a>
-      <div className="header-actions"><div className="languages" aria-label="Language">{(['pl','ru','uk'] as Locale[]).map(l => <button type="button" key={l} aria-pressed={locale === l} onClick={() => changeLanguage(l)}>{l.toUpperCase()}</button>)}</div><a className="nav-cta" href="#zapytanie">{t.nav}<span aria-hidden="true"> ↗</span></a></div>
+      <a href="#" className="wordmark" aria-label="Syty Kotek — start">syty kotek<span>DOMOWE OBIADY</span></a>
+      <div className="header-actions"><nav className="languages" aria-label="Language">{(['pl','ru','uk'] as Locale[]).map(l => <a href={localePaths[l]} hrefLang={l} key={l} aria-current={locale === l ? 'page' : undefined} onClick={() => saveLanguage(l)}>{l.toUpperCase()}</a>)}</nav><a className="nav-cta" href="#zapytanie">{t.nav}<span aria-hidden="true"> ↗</span></a></div>
     </header>
     <section className="hero wrap">
-      <div className="hero-copy"><p className="eyebrow"><span className="dot" />{t.badge}</p><h1>{t.title}</h1><p className="intro">{t.intro}</p><a className="button primary" href="#zapytanie">{t.cta}<span aria-hidden="true">↗</span></a><p className="fine">{t.small}</p></div>
-      <div className="hero-art"><span className="area-pill"><span aria-hidden="true">⌖</span> {t.area}</span><div className="art-circle"/><Image src="/syty-mruczek.png" alt="Syty Mruczek — uśmiechnięty, pulchny rudy kot z łyżką" width={1254} height={1254} priority className="cat"/><span className="art-caption">smacznego!</span></div>
+      <div className="hero-copy"><p className="eyebrow"><span className="dot" />{t.badge}</p><h1>{seo.heading}</h1><p className="intro">{t.intro}</p><a className="button primary" href="#zapytanie">{t.cta}<span aria-hidden="true">↗</span></a><p className="fine">{t.small}</p></div>
+      <div className="hero-art"><span className="area-pill"><span aria-hidden="true">⌖</span> {t.area}</span><div className="art-circle"/><Image src="/syty-kotek.png" alt="Syty Kotek — uśmiechnięty, pulchny rudy kot z łyżką" width={1254} height={1254} priority className="cat"/><span className="art-caption">smacznego!</span></div>
     </section>
     <section className="steps wrap" aria-label={t.nav}>{t.step.map((title, i) => <div key={i}><span className="step-number">0{i+1}</span><div><h2>{title}</h2><p>{t.stepText[i]}</p></div></div>)}</section>
+    <FoodGallery locale={locale}/>
+    <section className="service-copy wrap"><h2>{seo.sectionTitle}</h2><div>{seo.paragraphs.map(p=><p key={p}>{p}</p>)}</div></section>
     <section className="order-section" id="zapytanie"><div className="wrap order-grid"><div className="order-copy"><p className="eyebrow">{t.eyebrow}</p><h2>{t.formTitle}</h2><p>{t.formIntro}</p><div className="delivery-note"><span aria-hidden="true">⌖</span><div><strong>{t.area}</strong><p>{t.areaHint}</p></div></div></div>
-      <div className="form-card">{state === 'success' ? <div className="success" role="status"><span className="success-icon">✓</span><h3>{t.success}</h3><p>{t.successText}</p><button className="button primary" onClick={() => { setState('idle'); attempt.current = null; }}>{t.again}</button></div> : <form onSubmit={submit}>
+      <div className="form-card">{state === 'success' ? <div className="success" role="status"><span className="success-icon">✓</span><h3>{t.success}</h3><p>{t.successText}</p><button className="button primary" onClick={() => { setState('idle'); attempt.current = null; }}>{t.again}</button></div> : <form id="lunch-request" onSubmit={submit}>
         <fieldset disabled={state === 'sending'}><legend>{t.mealLabel}</legend><div className="meal-options">{meals.map((value, i) => <label className={`meal-option ${meal === value ? 'selected' : ''}`} key={value}><input type="radio" name="mealType" value={value} checked={meal === value} onChange={() => setMeal(value)}/><span><strong>{t.meals[i]}</strong><small>{t.descriptions[i]}</small></span><span className="radio-mark" aria-hidden="true"/></label>)}</div>
         <div className="field"><label htmlFor="place">{t.place}</label><input id="place" name="place" required minLength={5} maxLength={300} placeholder={t.placeHint} autoComplete="street-address"/></div>
         <div className="field-row"><div className="field"><label htmlFor="people">{t.people}</label><input id="people" name="people" type="number" min={1} max={1000} step={1} required defaultValue={10} inputMode="numeric"/></div><div className="field"><label htmlFor="contact">{t.contact}</label><input id="contact" name="contact" required maxLength={150} autoComplete="email" placeholder="+48 … / e-mail"/></div></div>
@@ -97,6 +111,8 @@ export default function Home() {
         {error && <p className="error" role="alert">{error}</p>}
         <button type="submit" className="button primary submit">{state === 'sending' ? t.sending : t.submit}<span aria-hidden="true">↗</span></button><p className="fine form-fine">{t.small}</p></fieldset>
       </form>}</div></div></section>
-    <footer className="wrap footer"><div className="wordmark">syty mruczek<span>{t.footer}</span></div><p>{t.footnote}</p><span className="footer-area">{t.area}</span></footer>
+    <section className="faq wrap"><h2>{seo.faqTitle}</h2><div>{seo.faq.map(([q,a])=><details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
+    <footer className="wrap footer"><div className="wordmark">syty kotek<span>{t.footer}</span></div><div><p>{t.footnote}</p><p>{seo.analyticsNote}</p></div><span className="footer-area">{t.area}</span></footer>
+    {state!=='success'&&<div className="mobile-cta">{formVisible?<button type="submit" form="lunch-request" className="button primary" disabled={state==='sending'}>{state==='sending'?t.sending:t.submit}<span aria-hidden="true">↗</span></button>:<a className="button primary" href="#zapytanie">{t.cta}<span aria-hidden="true">↗</span></a>}</div>}
   </main>;
 }
