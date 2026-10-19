@@ -4,6 +4,8 @@ const sql=postgres(Deno.env.get('SUPABASE_DB_URL')!,{max:1,prepare:false,idle_ti
 const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
 const hash=async(s:string)=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(x=>x.toString(16).padStart(2,'0')).join('');
 const hex=(v:unknown)=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
+const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const leadStatuses=['new','contacted','qualified','closed','test'];
 Deno.serve(async(req:Request)=>{
  if(req.method!=='POST')return json({error:'method_not_allowed'},405);
  const token=req.headers.get('x-restaurant-token')??'';
@@ -24,6 +26,13 @@ Deno.serve(async(req:Request)=>{
    const count=await sql`select count(*) as total from restaurant.leads`;
    const visits=await sql`select count(*) filter(where visit_day=${body.day}::date) as today,count(*) filter(where visit_day between ${body.day}::date-6 and ${body.day}::date) as week from restaurant.visits`;
    return json({leads,total:Number(count[0].total),visitsToday:Number(visits[0].today),visitsWeek:Number(visits[0].week)});
+  }
+  const ids=Array.isArray(body.ids)&&body.ids.length>=1&&body.ids.length<=20&&new Set(body.ids).size===body.ids.length&&body.ids.every((id:unknown)=>typeof id==='string'&&uuid.test(id))?body.ids as string[]:null;
+  if(body.action==='update_leads_status'&&ids&&leadStatuses.includes(body.status)){
+   const rows=await sql`update restaurant.leads set status=${body.status} where id in ${sql(ids)} returning id`;return json({ok:true,count:rows.length});
+  }
+  if(body.action==='delete_leads'&&ids){
+   const rows=await sql`delete from restaurant.leads where id in ${sql(ids)} returning id`;return json({ok:true,count:rows.length});
   }
   return json({error:'invalid_request'},400);
  }catch(error){console.error('Restaurant app request failed',error instanceof Error?error.name:'unknown');return json({error:'unavailable'},503);}
