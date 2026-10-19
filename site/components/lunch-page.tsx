@@ -6,6 +6,8 @@ import type { Locale, MealType } from '@/lib/lead-schema';
 import { localePaths, seoContent } from '@/lib/site-content';
 import VisitTracker from '@/components/visit-tracker';
 import FoodGallery from '@/components/food-gallery';
+import AnalyticsConsent from '@/components/analytics-consent';
+import { trackLead } from '@/lib/google-analytics';
 
 const copy = {
   pl: {
@@ -83,6 +85,7 @@ export default function LunchPage({ locale }: { locale: Locale }) {
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(response.status === 429 ? 'limit' : 'save');
       setState('success');
+      trackLead({locale,mealType:meal,people:Number(payload.people)});
     } catch (e) { setState('idle'); setError(e instanceof Error && e.message === 'limit' ? t.limit : t.error); }
   }
   function saveLanguage(next: Locale) { try { localStorage.setItem('syty-kotek-language',next); } catch {} }
@@ -112,7 +115,7 @@ export default function LunchPage({ locale }: { locale: Locale }) {
         <button type="submit" className="button primary submit">{state === 'sending' ? t.sending : t.submit}<span aria-hidden="true">↗</span></button><p className="fine form-fine">{t.small}</p></fieldset>
       </form>}</div></div></section>
     <section className="faq wrap"><h2>{seo.faqTitle}</h2><div>{seo.faq.map(([q,a])=><details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
-    <footer className="wrap footer"><div className="wordmark">syty kotek<span>{t.footer}</span></div><div><p>{t.footnote}</p><p>{seo.analyticsNote}</p></div><span className="footer-area">{t.area}</span></footer>
+    <footer className="wrap footer"><div className="wordmark">syty kotek<span>{t.footer}</span></div><div><p>{t.footnote}</p><p>{seo.analyticsNote}</p><AnalyticsConsent locale={locale}/></div><span className="footer-area">{t.area}</span></footer>
     {state!=='success'&&<div className="mobile-cta">{formVisible?<button type="submit" form="lunch-request" className="button primary" disabled={state==='sending'}>{state==='sending'?t.sending:t.submit}<span aria-hidden="true">↗</span></button>:<a className="button primary" href="#zapytanie">{t.cta}<span aria-hidden="true">↗</span></a>}</div>}
   </main>;
 }

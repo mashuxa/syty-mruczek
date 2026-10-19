@@ -36,6 +36,8 @@ The responsive gallery has 10 slides cycling through three supplied food photos 
 
 `database/admin-and-visits.sql` is the already-applied extension for private daily visit records and admin login limits. `restaurant-app-v1` is the authenticated server relay for listing leads and recording visits. Never call this function from browser code or expose its relay token.
 
-Visits are approximate daily unique IP/browser combinations, stored as a daily HMAC without raw IP addresses or analytics cookies. Known bot user agents, prefetches and automated browser sessions are excluded. Seven-day counts sum daily uniques. Analytics failures never prevent form submission. Google Analytics is pending a supplied GA4 Measurement ID.
+Visits are approximate daily unique IP/browser combinations, stored as a daily HMAC without raw IP addresses or analytics cookies. Known bot user agents, prefetches and automated browser sessions are excluded. Seven-day counts sum daily uniques. Analytics failures never prevent form submission.
+
+Google Analytics uses the separate `sytykotek` account (412456002), property (559572391), web stream (16159875859), Measurement ID `G-TF93RXBLCE`. The public ID is not a secret. The Google tag loads only after consent on the production hostname. Users can decline or change their choice through the footer. The choice expires after 180 days. Rejection disables GA and removes its cookies. Preview deployments and admin pages do not load GA. Advertising consent remains denied and Google signals are disabled. Only page views and successful `generate_lead` events are sent; form contacts, names, addresses, notes and request IDs are excluded. Page URL/referrer query strings and fragments are omitted.
 
 Never commit `.env.local`, `.vercel`, database credentials or customer records. The cat logo is an original generated brand draft.
