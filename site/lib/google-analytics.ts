@@ -11,7 +11,7 @@ export function readAnalyticsChoice():AnalyticsChoice|null{
 function pageLocation(){return location.origin+location.pathname;}
 function pageReferrer(){try{const url=new URL(document.referrer);return ['http:','https:'].includes(url.protocol)?url.origin+url.pathname:'';}catch{return '';}}
 export function allowAnalytics(){
- if(location.hostname!=='syty-kotek.vercel.app'||!['/','/ru','/uk'].includes(location.pathname))return;
+ if(location.hostname!=='sytykotek.pl'||!['/','/ru','/uk'].includes(location.pathname))return;
  window.sytyAnalyticsAllowed=true;(window as unknown as Record<string,unknown>)[disabledKey]=false;
  if(window.sytyAnalyticsStarted)return;
  window.sytyAnalyticsStarted=true;window.dataLayer=window.dataLayer||[];

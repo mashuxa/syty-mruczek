@@ -1,5 +1,5 @@
 import type { Locale } from './lead-schema';
-export const siteUrl='https://syty-kotek.vercel.app';
+export const siteUrl='https://sytykotek.pl';
 export const localePaths: Record<Locale,string>={pl:'/',ru:'/ru',uk:'/uk'};
 export const seoContent={
  pl:{
