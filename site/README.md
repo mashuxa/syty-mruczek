@@ -26,7 +26,7 @@ Email notifications are intentionally a placeholder: submissions are stored in t
 
 ## Public pages and branding
 
-Production: https://syty-kotek.vercel.app. The previous syty-mruczek.vercel.app address permanently redirects to it. Polish `/`, Russian `/ru`, Ukrainian `/uk`; language links save the preference in localStorage. Public pages include localized metadata, canonical/hreflang links, robots.txt, sitemap and service structured data. Preview deployments and admin pages are excluded from indexing. Social previews use `/social-card-v1.png`; the favicon is a paw with a spoon.
+Production: https://syty-kotek.vercel.app. The previous syty-mruczek.vercel.app address permanently redirects to it. Polish `/`, Russian `/ru`, Ukrainian `/uk`; language links save the preference in localStorage. Public pages include localized metadata, canonical/hreflang links, robots.txt, sitemap and service structured data. Preview deployments and admin pages are excluded from indexing. Social previews use `/social-card-v1.png`; the favicon is a simple wooden spoon.
 
 The responsive gallery has 10 slides cycling through three supplied food photos until more examples are available. It supports touch scrolling, arrows and keyboard controls. On small screens a fixed bottom button opens the form, then submits it while the form is visible.
 
