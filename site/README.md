@@ -20,7 +20,7 @@ Retries with the same request ID and payload return the same lead. A changed pay
 
 Connect this repository through the Git integration. Root Directory: `site`. Framework: Next.js. Configure `RESTAURANT_FUNCTION_URL`, the secret `RESTAURANT_RELAY_TOKEN`, and `APP_ORIGIN` (the production origin). Vercel preview and production system URLs are also accepted by the route.
 
-The production branch deploys automatically after each push. Other branches receive previews. No GitHub Actions deployment token is required.
+The production branch is `codex/launch`; every push to it deploys automatically. Other branches receive previews. No GitHub Actions deployment token is required. Production builds run input-validation tests before compiling Next.js.
 
 Email notifications are intentionally a placeholder: submissions are stored in the database, but no email is sent. `notification_status=placeholder` records this explicitly. Add the recipient/provider later. Search indexing is disabled while preparing the launch.
 
