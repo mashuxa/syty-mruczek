@@ -33,10 +33,10 @@ export default function AdminLeads({leads}:{leads:Lead[]}){
    {selected.length>0&&<>
     <span className="admin-count">Выбрано: <strong>{selected.length}</strong></span>
     <select className="admin-select" aria-label="Новый статус" value={status} disabled={busy} onChange={event=>setStatus(event.target.value)}>{Object.entries(statusNames).map(([value,name])=><option key={value} value={value}>{name}</option>)}</select>
-    <button type="button" className="admin-btn" disabled={busy} onClick={()=>run({action:'status',status})}>Сменить статус</button>
+    <button type="button" className="admin-btn" disabled={busy} onClick={()=>run({action:'status',status})}>Сменить статус выбранных</button>
     {confirming
      ?<><button type="button" className="admin-btn danger" disabled={busy} onClick={()=>run({action:'delete'})}>Да, удалить {selected.length}</button><button type="button" className="admin-btn" disabled={busy} onClick={()=>setConfirming(false)}>Нет</button></>
-     :<button type="button" className="admin-btn danger" disabled={busy} onClick={()=>setConfirming(true)}>Удалить</button>}
+     :<button type="button" className="admin-btn danger" disabled={busy} onClick={()=>setConfirming(true)}>Удалить выбранные</button>}
    </>}
    <span className="admin-message" role="status" aria-live="polite">{message}</span>
   </div>
